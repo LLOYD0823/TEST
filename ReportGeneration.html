@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Generation</title>
+</head>
+<body>
+    <h1>Report Generation</h1>
+    <button onclick="generateReport()">Generate Report</button>
+    <div id="report"></div>
+
+    <script>
+        function generateReport() {
+            // Simulated data (replace this with your actual data)
+            const reportData = [
+                { name: 'John Doe', age: 30, nationality: 'American', purpose: 'Tourism' },
+                { name: 'Jane Smith', age: 25, nationality: 'Canadian', purpose: 'Business' },
+                { name: 'Alice Johnson', age: 35, nationality: 'British', purpose: 'Tourism' }
+            ];
+
+            // Generating the report content
+            let reportContent = '<h2>Visitor Report</h2>';
+            reportContent += '<table border="1">';
+            reportContent += '<tr><th>Name</th><th>Age</th><th>Nationality</th><th>Purpose</th></tr>';
+            
+            reportData.forEach(visitor => {
+                reportContent += `<tr><td>${visitor.name}</td><td>${visitor.age}</td><td>${visitor.nationality}</td><td>${visitor.purpose}</td></tr>`;
+            });
+            
+            reportContent += '</table>';
+
+            // Displaying the report
+            document.getElementById('report').innerHTML = reportContent;
+        }
+    </script>
+</body>
+</html>

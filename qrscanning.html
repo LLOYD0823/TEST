@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verification of Tourist</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="tourday.css">
+
+    <!-- Poppins Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- HTML5 QR Code Scanner -->
+    <script src="./node_modules/html5-qrcode/html5-qrcode.min.js"></script>
+    <!-- Firebase Configuration -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+
+    <script>
+        // Your web app's Firebase configuration
+        var firebaseConfig = {
+            apiKey: "AIzaSyCeSy9qMibAAYCZg5cipJ8097qeh3vwF08",
+            authDomain: "testingapp-589a1.firebaseapp.com",
+            databaseURL: "https://testingapp-589a1-default-rtdb.firebaseio.com",
+            projectId: "testingapp-589a1",
+            storageBucket: "testingapp-589a1.appspot.com",
+            messagingSenderId: "920622301670",
+            appId: "1:920622301670:web:8937030299600fede51627",
+            measurementId: "G-ZJP7HRFH98"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        var database = firebase.database();
+    </script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin-top: 50px;
+        }
+
+        #reader {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        #result {
+            text-align: left;
+            font-size: 1.2rem;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .data-container {
+            display: flex;
+            padding-top: 30px;
+            flex-wrap: wrap;
+            flex-direction: column;
+            align-content: flex-start;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .data-item {
+            box-sizing: border-box;
+            padding: 5px;
+        }
+
+        .timestamp {
+            margin-top: 30px;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        .btn-verify {
+            margin-top: 30px;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        .sidebar-heading {
+            font-weight: bold;
+            font-size: 1.2rem;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex flex-column flex-md-row" id="wrapper">
+        <!-- Sidebar -->
+        <div class="bg-light border-right" id="sidebar-wrapper">
+            <div class="sidebar-heading text-white bg-primary">Guimaras Tourism Management Information System</div>
+            <div class="list-group list-group-flush">
+                <a href="#" class="list-group-item list-group-item-action bg-light">PEDO OFFICER</a>
+                <a href="#" class="list-group-item list-group-item-action bg-light">Tourist Data</a>
+                <a href="#" class="list-group-item list-group-item-action bg-light text-danger">Logout</a>
+            </div>
+        </div>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper" class="flex-grow-1">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+                <button class="btn btn-primary" id="menu-toggle"><i class="fas fa-bars"></i></button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fas fa-search"></i></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fas fa-bell"></i></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fas fa-envelope"></i></a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">
+                                <i class="fas fa-user"></i> PEDO
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="#">Profile</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#">Logout</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main>
+                <div id="reader"></div>
+                <div id="result"></div>
+            </main>
+        
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const fieldNamesMap = {
+                        firstName: "First Name",
+                        lastName: "Last Name",
+                        middleName: "Middle Name",
+                        nationality: "Nationality",
+                        sex: "Sex",
+                        birthday: "Birthday",
+                        age: "Age",
+                        civilStatus: "Civil Status",
+                        visitorType: "Visitor Type",
+                        countryOfResidence: "Country of Residence",
+                        postalCode: "Postal Code",
+                        province: "Province",
+                        city: "City",
+                        barangay: "Barangay",
+                        streetAddress: "Street Address",
+                        purposeOfTravel: "Purpose of Travel",
+                        visitationCategories: "Visitation Categories",
+                        LengthofStay: "Length of Stay",
+                        Location: "Location",
+                        Accommodation: "Accommodation",
+                        TourType: "Tour Type"
+                    };
+        
+                    const scanner = new Html5Qrcode("reader");
+        
+                    scanner.start(
+                        { facingMode: "environment" },
+                        {
+                            fps: 10,
+                            qrbox: 250
+                        },
+                        success,
+                        error
+                    ).catch(err => console.error('Error starting QR scanner:', err));
+        
+                    function success(result) {
+                        try {
+                            const data = JSON.parse(result);
+                            const entries = Object.entries(data);
+        
+                            let details = `<div class="data-container">${entries.map(([key, value]) => `
+                                <div class="data-item"><strong>${fieldNamesMap[key] || key}:</strong> ${value}</div>
+                            `).join('')}</div>`;
+        
+                            let timestamp = new Date().toLocaleString();
+                            document.getElementById('result').innerHTML = `
+                                <h2>Tourist Information</h2>
+                                ${details}
+                                <p class="timestamp">Verified Tourist at: ${timestamp}</p>
+                                <button id="verifyBtn" class="btn btn-primary btn-verify">Verify</button>
+                            `;
+        
+                            document.getElementById('verifyBtn').addEventListener('click', function () {
+                                firebase.database().ref('TouristID').once('value', snapshot => {
+                                    let matchFound = false;
+                                    snapshot.forEach(childSnapshot => {
+                                        const touristData = childSnapshot.val();
+                                        if (isEqual(touristData, data)) {
+                                            matchFound = true;
+                                            if (!touristData.timestamps) {
+                                                touristData.timestamps = [];
+                                            }
+                                            touristData.timestamps.push(timestamp);
+                                            firebase.database().ref('TouristID/' + childSnapshot.key).update(touristData)
+                                                .then(() => {
+                                                    alert('Timestamp successfully updated!');
+                                                    location.reload();
+                                                })
+                                                .catch(error => console.error('Error updating timestamp: ', error));
+                                        }
+                                    });
+                                    if (!matchFound) {
+                                        alert('Tourist data already exists.');
+                                    }
+                                });
+                            });
+        
+                            scanner.stop().catch(err => console.error('Error stopping QR scanner:', err));
+                            document.getElementById('reader').remove();
+                        } catch (e) {
+                            console.error('Error parsing QR code: ', e);
+                            document.getElementById('result').innerHTML = `<p style="color: red;">${e.message}</p>`;
+                        }
+                    }
+        
+                    function error(err) {
+                        console.error('Error scanning QR code:', err);
+                    }
+        
+                    function isEqual(obj1, obj2) {
+                        const keys1 = Object.keys(obj1);
+                        const keys2 = Object.keys(obj2);
+                        if (keys1.length !== keys2.length) {
+                            return false;
+                        }
+                        for (let key of keys1) {
+                            if (obj1[key] !== obj2[key]) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                });
+            </script>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="tourday.js"></script>
+</body>
+</html>

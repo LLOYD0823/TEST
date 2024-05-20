@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day Tour</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="tourday.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="bg-light border-right" id="sidebar-wrapper">
+            <div class="sidebar-heading text-white">Guimaras Tourism Management Information System</div>
+            <div class="list-group list-group-flush">
+                <a href="pedo.html" class="list-group-item list-group-item-action bg-light">Dashboard</a>
+                <a href="#" class="list-group-item list-group-item-action bg-light">Spending Analysis</a>
+                <a href="#" class="list-group-item list-group-item-action bg-light">Predictive Analytics</a>
+                <a href="#" class="list-group-item list-group-item-action bg-light">Report</a>
+                <a href="Log in.html" class="list-group-item list-group-item-action bg-light text-danger">Logout</a>
+            </div>
+        </div>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+                <button class="btn btn-primary" id="menu-toggle"><i class="fas fa-bars"></i></button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fas fa-search"></i></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fas fa-bell"></i></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fas fa-envelope"></i></a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">
+                                <i class="fas fa-user"></i> PEDO
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="#">Profile</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#">Logout</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="container-fluid">
+                <h1 class="mt-4">Day Tour</h1>
+                <div class="row">
+                    <div class="col-12">
+                        <div id="data-container">
+                            <div class="d-flex justify-content-between mb-3">
+                                <input type="text" id="search-input" class="form-control w-25" placeholder="Search by name...">
+                            </div>
+                            <table class="table table-striped">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>Last Name</th>
+                                        <th>First Name</th>
+                                        <th>Middle Name</th>
+                                        <th>Nationality</th>
+                                        <th>Sex</th>
+                                        <th>Birthday</th>
+                                        <th>Age</th>
+                                        <th>Civil Status</th>
+                                        <th>Visitor Type</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tourist-table-body">
+                                    <!-- Tourist data will be displayed here -->
+                                </tbody>
+                            </table>
+                            <div id="pagination" class="d-flex justify-content-end mt-3">
+                                <button id="prev-page" class="btn btn-primary mr-2">Previous</button>
+                                <span id="page-info" class="align-self-center mr-2"></span>
+                                <button id="next-page" class="btn btn-primary">Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>     
+            </div>
+        </div>
+        <!-- /#page-content-wrapper -->
+    </div>
+
+    <!-- Non-Module Script for redirection -->
+    <script>
+        function redirectToFulldata() {
+            window.location.href = "Fulldata.html";
+        }
+    </script>
+
+    <!-- DayTour Script-->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-database.js";
+    
+        const firebaseConfig = {
+            apiKey: "AIzaSyCeSy9qMibAAYCZg5cipJ8097qeh3vwF08",
+            authDomain: "testingapp-589a1.firebaseapp.com",
+            databaseURL: "https://testingapp-589a1-default-rtdb.firebaseio.com",
+            projectId: "testingapp-589a1",
+            storageBucket: "testingapp-589a1.appspot.com",
+            messagingSenderId: "920622301670",
+            appId: "1:920622301670:web:8937030299600fede51627",
+            measurementId: "G-ZJP7HRFH98"
+        };
+    
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase();
+    
+        let currentPage = 1;
+        const rowsPerPage = 10;
+        let touristData = [];
+        let filteredData = [];
+    
+        document.getElementById('search-input').addEventListener('input', function () {
+            const searchQuery = this.value.toLowerCase();
+            filteredData = touristData.filter(tourist => 
+                (tourist.lastName?.toLowerCase() || '').includes(searchQuery) || 
+                (tourist.firstName?.toLowerCase() || '').includes(searchQuery)
+            );
+            currentPage = 1;
+            displayTouristData();
+        });
+    
+        document.getElementById('prev-page').addEventListener('click', function () {
+            currentPage--;
+            displayTouristData();
+        });
+    
+        document.getElementById('next-page').addEventListener('click', function () {
+            currentPage++;
+            displayTouristData();
+        });
+    
+        function displayTouristData() {
+            const tbody = document.getElementById('tourist-table-body');
+            tbody.innerHTML = "";
+    
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const pageData = filteredData.slice(start, end);
+    
+            pageData.forEach(tourist => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${tourist.lastName}</td>
+                    <td>${tourist.firstName}</td>
+                    <td>${tourist.middleName}</td>
+                    <td>${tourist.nationality}</td>
+                    <td>${tourist.sex}</td>
+                    <td>${tourist.birthday}</td>
+                    <td>${tourist.age}</td>
+                    <td>${tourist.civilStatus}</td>
+                    <td>${tourist.visitorType}</td>
+                    <td><button class="btn btn-primary" onclick="redirectToFulldata()">See More</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+    
+            updatePaginationButtons();
+        }
+    
+        function updatePaginationButtons() {
+            const totalRows = filteredData.length;
+            const totalPages = Math.ceil(totalRows / rowsPerPage);
+    
+            document.getElementById('prev-page').disabled = currentPage === 1;
+            document.getElementById('next-page').disabled = currentPage === totalPages;
+            document.getElementById('page-info').textContent = `Page ${currentPage} of ${totalPages}`;
+        }
+    
+        function fetchTouristData() {
+            const touristRef = ref(db, "TouristID");
+    
+            onValue(touristRef, (snapshot) => {
+                touristData = [];
+                snapshot.forEach((touristSnapshot) => {
+                    const data = touristSnapshot.val();
+                    if (data.TourType === 'Day Tour' && data.timestamps) {
+                        touristData.push({...data, id: touristSnapshot.key});  // Include the Tourist ID
+                    }
+                });
+                filteredData = touristData;
+                displayTouristData();
+            });
+        }
+    
+        window.onload = fetchTouristData;
+    </script>
+    <!-- /#wrapper -->
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $("#menu-toggle").click(function(e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+body {
+    overflow-x: hidden;
+}
+
+#wrapper {
+    display: flex;
+    width: 100%;
+}
+
+#sidebar-wrapper {
+    min-height: 100vh;
+    width: 250px;
+    margin-left: -250px;
+    transition: margin 0.25s ease-out;
+    background-color: #3a5a40;
+}
+
+#sidebar-wrapper .sidebar-heading {
+    padding: 0.875rem 1.25rem;
+    font-size: 1.2rem;
+    color: #fff;
+    background-color: #3a5a40;
+    text-align: center;
+}
+
+#sidebar-wrapper .list-group {
+    width: 15rem;
+}
+
+#page-content-wrapper {
+    width: 100%;
+    padding: 15px;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+    margin-left: 0;
+}
+
+.bg-primary, .bg-success, .bg-warning, .bg-danger {
+    color: #fff !important;
+}
+
+.card-header {
+    font-weight: bold;
+}
+
+.card-title {
+    font-size: 1.25rem;
+}
+
+.card-text {
+    font-size: 1.5rem;
+}
+
+.navbar {
+    background-color: #f8f9fa !important;
+}
+
+.nav-link {
+    color: #333 !important;
+}

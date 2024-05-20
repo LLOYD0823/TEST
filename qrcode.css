@@ -1,0 +1,48 @@
+#qr-code-scanner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 50px;
+  }
+  
+  #qr-video {
+    border: 1px solid black;
+  }
+  
+  #qr-table {
+    margin-top: 20px;
+    border-collapse: collapse;
+  }
+  
+  #qr-table th,
+  #qr-table td {
+    border: 1px solid black;
+    padding: 5px;
+  }
+  
+  #qr-table th {
+    background-color: #ddd;
+  }
+  
+  #qr-table-body tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  #start-button,
+  #stop-button {
+    margin-top: 20px;
+    padding: 5px 10px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  #start-button {
+    background-color: green;
+    color: white;
+  }
+  
+  #stop-button {
+    background-color: red;
+    color: white;
+  }

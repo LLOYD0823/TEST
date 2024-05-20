@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tourist Influx Forecast with ARIMA</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/arimajs/dist/arima.min.js"></script>
+</head>
+<body>
+    <canvas id="forecastChart" width="800" height="400"></canvas>
+    <script>
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCeSy9qMibAAYCZg5cipJ8097qeh3vwF08",
+            authDomain: "testingapp-589a1.firebaseapp.com",
+            databaseURL: "https://testingapp-589a1-default-rtdb.firebaseio.com",
+            projectId: "testingapp-589a1",
+            storageBucket: "testingapp-589a1.appspot.com",
+            messagingSenderId: "920622301670",
+            appId: "1:920622301670:web:8937030299600fede51627",
+            measurementId: "G-ZJP7HRFH98"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        async function getTouristData() {
+            const snapshot = await db.ref('TouristID').once('value');
+            const data = [];
+            snapshot.forEach(childSnapshot => {
+                const value = childSnapshot.val();
+                // Parse LengthofStay to ensure it's a number
+                let lengthOfStay = parseInt(value.LengthofStay);
+                if (!isNaN(lengthOfStay)) {
+                    data.push(lengthOfStay);
+                }
+            });
+            return data;
+        }
+
+        async function main() {
+            try {
+                const data = await getTouristData();
+
+                if (data.length === 0) {
+                    console.log("No data available.");
+                    return;
+                }
+
+                // Define ARIMA parameters (these should be determined by analysis of the data)
+                const p = 2; // autoregressive order
+                const d = 1; // differencing order
+                const q = 2; // moving average order
+
+                // Fit ARIMA model
+                const arima = new Arima({ p, d, q });
+                arima.train(data);
+
+                // Forecast next 6 periods (e.g., next 6 months)
+                const [predictions] = arima.predict(6);
+
+                // Prepare data for charting
+                const labels = Array.from({ length: data.length + predictions.length }, (_, i) => `Month ${i + 1}`);
+                const allData = data.concat(predictions);
+
+                // Create chart using Chart.js
+                const ctx = document.getElementById('forecastChart').getContext('2d');
+                const chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Historical Data',
+                                data: data,
+                                borderColor: 'blue',
+                                fill: false
+                            },
+                            {
+                                label: 'Forecasted Data',
+                                data: new Array(data.length).fill(null).concat(predictions),
+                                borderColor: 'red',
+                                borderDash: [5, 5],
+                                fill: false
+                            }
+                        ]
+                    },
+                    options: {
+                        scales: {
+                            x: {
+                                title: { display: true, text: 'Month' }
+                            },
+                            y: {
+                                title: { display: true, text: 'Length of Stay' }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading ARIMA library or fetching data:', error);
+            }
+        }
+
+        main();
+    </script>
+</body>
+</html>

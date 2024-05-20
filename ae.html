@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="pedo.css">
+    <script src="https://www.gstatic.com/firebasejs/9.6.6/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.6/firebase-database-compat.js"></script>
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="bg-light border-right" id="sidebar-wrapper">
+            <div class="sidebar-heading text-white">Guimaras Tourism Management Information System</div>
+            <div class="list-group list-group-flush">
+                <a href="pedo.html" class="list-group-item list-group-item-action bg-light">Dashboard</a>
+                <a href="#" class="list-group-item list-group-item-action bg-light">Spending Analysis</a>
+                <a href="#" class="list-group-item list-group-item-action bg-light">Predictive Analytics</a>
+                <a href="#" class="list-group-item list-group-item-action bg-light">Report</a>
+                <a href="#" class="list-group-item list-group-item-action bg-light text-danger">Logout</a>
+            </div>
+        </div>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+                <button class="btn btn-primary" id="menu-toggle"><i class="fas fa-bars"></i></button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fas fa-search"></i></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fas fa-bell"></i></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fas fa-envelope"></i></a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">
+                                <i class="fas fa-user"></i> PEDO
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                <a class="dropdown-item" href="#">Profile</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item" href="#">Logout</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="container-fluid">
+                <h1 class="mt-4">Accommodation Establishment</h1>
+                <div class="row">
+                </div>
+                <!-- AE Table -->
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="card mb-4">
+                            <div class="card-header">AE Details</div>
+                            <div class="card-body">
+                                <div id="data-container">
+                                    <table class="table table-striped table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Name of Accommodation Establishment</th>
+                                                <th>Type</th>
+                                                <th>Location</th>
+                                                <th>Contact No.</th>
+                                                <th>Email</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="establishment-table-body">
+                                            <!-- Establishment data will be displayed here -->
+                                        </tbody>
+                                    </table>
+                                    <div id="pagination" class="d-flex justify-content-end">
+                                        <button id="prev-page" class="btn btn-primary" onclick="prevPage()">Previous</button>
+                                        <span id="page-info" class="align-self-center mx-2">Page 1 of 1</span>
+                                        <button id="next-page" class="btn btn-primary" onclick="nextPage()">Next</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /#page-content-wrapper -->
+    </div>
+    <!-- /#wrapper -->
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="pedo.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCeSy9qMibAAYCZg5cipJ8097qeh3vwF08",
+            authDomain: "testingapp-589a1.firebaseapp.com",
+            databaseURL: "https://testingapp-589a1-default-rtdb.firebaseio.com",
+            projectId: "testingapp-589a1",
+            storageBucket: "testingapp-589a1.appspot.com",
+            messagingSenderId: "920622301670",
+            appId: "1:920622301670:web:8937030299600fede51627",
+            measurementId: "G-ZJP7HRFH98"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase();
+
+        let currentPage = 1;
+        const rowsPerPage = 10;
+        let establishmentData = [];
+
+        function displayEstablishmentData() {
+            const tbody = document.getElementById('establishment-table-body');
+            tbody.innerHTML = "";
+
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const pageData = establishmentData.slice(start, end);
+
+            pageData.forEach(establishment => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${establishment.name || "N/A"}</td>
+                    <td>${establishment.type || "N/A"}</td>
+                    <td>${establishment.location || "N/A"}</td>
+                    <td>${establishment.contactInfo || "N/A"}</td>
+                    <td>${establishment.email || "N/A"}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            updatePaginationButtons();
+            updatePageInfo();
+        }
+
+        function toggleAdditionalData(button) {
+            const row = button.parentElement.parentElement;
+            row.classList.toggle('additional-data');
+            button.textContent = row.classList.contains('additional-data') ? 'See Less' : 'See More';
+        }
+
+        function updatePaginationButtons() {
+            const totalPages = Math.ceil(establishmentData.length / rowsPerPage);
+            document.getElementById('prev-page').disabled = currentPage === 1;
+            document.getElementById('next-page').disabled = currentPage === totalPages;
+        }
+
+        function updatePageInfo() {
+            const pageInfo = document.getElementById('page-info');
+            const totalPages = Math.ceil(establishmentData.length / rowsPerPage);
+            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+        }
+
+        // Define functions in the global scope
+        window.nextPage = function nextPage() {
+            if (currentPage < Math.ceil(establishmentData.length / rowsPerPage)) {
+                currentPage++;
+                displayEstablishmentData();
+            }
+        };
+
+        window.prevPage = function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                displayEstablishmentData();
+            }
+        };
+
+        function fetchEstablishmentData() {
+            const establishmentRef = ref(db, "EstablishmentID");
+
+            onValue(establishmentRef, (snapshot) => {
+                establishmentData = [];
+
+                snapshot.forEach((establishmentSnapshot) => {
+                    const data = establishmentSnapshot.val();
+                    if (data.type === "Accommodation Establishment") {
+                        establishmentData.push(data);
+                    }
+                });
+
+                currentPage = 1; // Reset to first page on data fetch
+                displayEstablishmentData();
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            fetchEstablishmentData();
+        });
+    </script>
+</body>
+</html>

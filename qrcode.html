@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>QR Code Scanner</title>
+    <link rel="stylesheet" type="text/css" href="qrcode.css" />
+  </head>
+  <body>
+    <div id="qr-code-scanner">
+      <video id="qr-video" width="300" height="300"></video>
+      <button id="start-button">Start Camera</button>
+      <button id="stop-button" disabled>Stop Camera</button>
+      <canvas id="qr-canvas" style="display: none;"></canvas>
+      <table id="qr-table" style="display: none;">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Timestamp</th>
+            <th>Verify</th>
+          </tr>
+        </thead>
+        <tbody id="qr-table-body"></tbody>
+      </table>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-firestore.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.4.4/qrcode.min.js" integrity="sha512-LXW3Q7W6C8E1fFy0ZCjKOzrWnjLKZ81fK+O/cNJF0bed drXJiMx+u0TlPbU4H85jK8k+3WyRpP5AOvLQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="qrcode.js"></script>
+  </body>
+</html>

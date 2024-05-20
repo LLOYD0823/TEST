@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full Data</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Tourist Full Data</h1>
+        <table class="table table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Field</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody id="tourist-table-body">
+                <!-- Tourist data will be displayed here -->
+            </tbody>
+        </table>
+        <button class="btn btn-primary mt-3" onclick="goBack()">Back</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+    function goBack() {
+        window.location.href = 'tourday.html';
+    }
+    </script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-database.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCeSy9qMibAAYCZg5cipJ8097qeh3vwF08",
+            authDomain: "testingapp-589a1.firebaseapp.com",
+            databaseURL: "https://testingapp-589a1-default-rtdb.firebaseio.com",
+            projectId: "testingapp-589a1",
+            storageBucket: "testingapp-589a1.appspot.com",
+            messagingSenderId: "920622301670",
+            appId: "1:920622301670:web:8937030299600fede51627",
+            measurementId: "G-ZJP7HRFH98"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase();
+
+        // Function to display required tourist data
+        function displayTouristData() {
+            const tbody = document.getElementById('tourist-table-body');
+
+            // Fetch tourist data
+            const touristRef = ref(db, "TouristID");
+
+            onValue(touristRef, (snapshot) => {
+                let dataDisplayed = false;
+                tbody.innerHTML = "";
+
+                snapshot.forEach((touristSnapshot) => {
+                    if (dataDisplayed) return; // Stop processing further records
+
+                    const touristData = touristSnapshot.val();
+
+                    if (touristData.TourType === "Day Tour") {
+                        const {
+                            lastName = "N/A",
+                            firstName = "N/A",
+                            middleName = "N/A",
+                            nationality = "N/A",
+                            sex = "N/A",
+                            birthday = "N/A",
+                            age = "N/A",
+                            civilStatus = "N/A",
+                            visitorType = "N/A",
+                            barangay = "N/A",
+                            city = "N/A",
+                            countryOfResidence = "N/A",
+                            postalCode = "N/A",
+                            province = "N/A",
+                            purposeOfTravel = "N/A",
+                            streetAddress = "N/A"
+                        } = touristData;
+
+                        // Append rows for each field
+                        tbody.innerHTML += `
+                            <tr><td>Last Name</td><td>${lastName}</td></tr>
+                            <tr><td>First Name</td><td>${firstName}</td></tr>
+                            <tr><td>Middle Name</td><td>${middleName}</td></tr>
+                            <tr><td>Nationality</td><td>${nationality}</td></tr>
+                            <tr><td>Sex</td><td>${sex}</td></tr>
+                            <tr><td>Birthday</td><td>${birthday}</td></tr>
+                            <tr><td>Age</td><td>${age}</td></tr>
+                            <tr><td>Civil Status</td><td>${civilStatus}</td></tr>
+                            <tr><td>Visitor Type</td><td>${visitorType}</td></tr>
+                            <tr><td>Barangay</td><td>${barangay}</td></tr>
+                            <tr><td>City</td><td>${city}</td></tr>
+                            <tr><td>Country of Residence</td><td>${countryOfResidence}</td></tr>
+                            <tr><td>Postal Code</td><td>${postalCode}</td></tr>
+                            <tr><td>Province</td><td>${province}</td></tr>
+                            <tr><td>Purpose of Travel</td><td>${purposeOfTravel}</td></tr>
+                            <tr><td>Street Address</td><td>${streetAddress}</td></tr>
+                        `;
+
+                        dataDisplayed = true; // Set flag to indicate data has been displayed
+                    }
+                });
+            });
+        }
+
+        // Call the displayTouristData function when the window loads
+        window.onload = displayTouristData;
+
+    </script>
+</body>
+</html>
